@@ -1,0 +1,16 @@
+#logo-wrapper {
+    position: absolute;
+    top:0;
+    left:0;
+}
+
+#logo-wrapper img {
+    width: 112px;
+    margin: 20px;
+}
+
+@media (min-width: 320px) and (max-width: 540px) {
+    #root div.demo-content {
+      margin-left: 120px;
+    }
+}
