@@ -46,7 +46,7 @@ ARM_SUBSCRIPTION_ID=<your Azure subscription>
 
 ```bash
 $ docker run --env-file ./.env.local -it --rm \
---name client-ci -v `pwd`:`pwd` -w `pwd` mcr.microsoft.com/azure-cli:2.0.81 /bin/bash
+--name client-ci -v `pwd`:`pwd` -w `pwd` mcr.microsoft.com/azure-cli:2.3.1 /bin/bash
 
 bash-5.0# az login --service-principal -t $ARM_TENANT_ID -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET
 ...

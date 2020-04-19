@@ -22,5 +22,5 @@ COPY --from=install-npm /app/node_modules /app/node_modules
 COPY . /app
 
 # run
-EXPOSE 3000
+EXPOSE 9000
 CMD ["npm", "start"]

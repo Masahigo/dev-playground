@@ -72,6 +72,7 @@ resource "azurerm_dns_cname_record" "target" {
   zone_name           = var.dns_zone_name
   resource_group_name = var.common_resource_group_name
   ttl                 = 300
+  tags                = var.tags
   record              = "${azurerm_cdn_endpoint.spa.name}.azureedge.net"
 }
 
@@ -81,7 +82,7 @@ resource "null_resource" "cdndomain" {
   }
 
   provisioner "local-exec" {
-    command     = "./bin/domain.sh ${azurerm_cdn_endpoint.spa.name} ${azurerm_cdn_profile.cdn.name} ${var.resource_group_name} ${azurerm_dns_cname_record.target.name} ${azurerm_dns_cname_record.target.name}.${var.dns_zone_name}"
+    command     = "./bin/domain.sh ${azurerm_cdn_endpoint.spa.name} ${azurerm_cdn_profile.cdn.name} ${azurerm_resource_group.target.name} ${azurerm_dns_cname_record.target.name} ${azurerm_dns_cname_record.target.name}.${var.dns_zone_name}"
     interpreter = ["/bin/bash", "-c"]
   }
 
@@ -90,3 +91,79 @@ resource "null_resource" "cdndomain" {
      azurerm_dns_cname_record.target
   ]
 }
+
+### BACKEND APP ###
+
+resource "azurerm_app_service_plan" "appserviceplan" {
+  name                = "spa-demo-be-we-asp"
+  location            = azurerm_resource_group.target.location
+  resource_group_name = azurerm_resource_group.target.name
+  tags                = var.tags
+  kind                = "Linux"
+  reserved            = "true" # Mandatory for Linux plans
+
+  sku {
+    tier = "Basic"
+    size = "B1"
+  }
+}
+
+resource "azurerm_app_service" "backend" {
+  name                = "spa-demo-be-we-app"
+  location            = azurerm_resource_group.target.location
+  resource_group_name = azurerm_resource_group.target.name
+  tags                = var.tags
+  app_service_plan_id = azurerm_app_service_plan.appserviceplan.id
+  https_only          = true
+
+  # Configure Docker Image to load on start
+  site_config {
+    linux_fx_version = "DOCKER|masahigo/spa-demo-backend:latest"
+    always_on        = true
+    cors {
+      allowed_origins = ["https://${azurerm_dns_cname_record.target.name}.${var.dns_zone_name}"]
+    }
+  }
+  
+  # https://github.com/microsoft/cobalt/issues/170
+  app_settings = {
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = false # Do not attach Storage by default
+    WEBSITES_PORT                       = 9000
+  }
+}
+
+resource "azurerm_dns_cname_record" "backendcname" {
+  name                = "linkedin-demo-backend"
+  zone_name           = var.dns_zone_name
+  resource_group_name = var.common_resource_group_name
+  ttl                 = 300
+  tags                = var.tags
+  record              = "${azurerm_app_service.backend.name}.azurewebsites.net"
+}
+
+# App Service Managed Certs not yet supported in tf - https://github.com/terraform-providers/terraform-provider-azurerm/issues/4824
+resource "null_resource" "appservicemanagedcert" {
+    triggers = {
+      version = "0.0.1"
+    }
+
+    provisioner "local-exec" {
+      command     = "./bin/managedcert.sh ${azurerm_resource_group.target.name} ${azurerm_app_service.backend.name} ${azurerm_dns_cname_record.backendcname.name}.${var.dns_zone_name}"
+      interpreter = ["/bin/bash", "-c"]
+    }
+
+    depends_on = [
+      azurerm_app_service.backend,
+      azurerm_dns_cname_record.backendcname
+    ]
+}
+
+#resource "azurerm_app_service_custom_hostname_binding" "backendbinding" {
+#  hostname            = "linkedin-demo-backend.dev.msdevopsdude.com"
+#  app_service_name    = azurerm_app_service.backend.name
+#  resource_group_name = azurerm_resource_group.target.name
+
+#  depends_on = [
+#     null_resource.appservicemanagedcert
+#  ]
+#}

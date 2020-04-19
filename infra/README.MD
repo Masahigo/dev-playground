@@ -34,3 +34,19 @@ cd terraform/common/bin
 
 Once the script is finished, it will print out a snippet to be placed in
 `main.tf` for storing remote state.
+
+## Provision demo environment
+
+```bash
+terraform init
+terraform apply -auto-approve
+```
+**Manual step: enable HTTPS for CDN endpoint's custom domain**
+
+- Navigate to CDN endpoint: `spa-demo-fe-we-cdn-ep`
+- Custom domains blade > `playground.dev.msdevopsdude.com`
+- Configure
+  - Custom domain HTTPS > *On*
+  - Certificate management type > *CDN managed*
+- Click *Save* and wait for the process to finish (~5-10 mins)
+
