@@ -21,6 +21,13 @@ app.use(cors(
 );
 
 app.get('/linkedin', async (req, res) => {
+    if(!req.query.code) {
+        return res
+            .status(400)
+            .send(
+                `No auth code provided!`
+            );
+    }
     try {
         const body = new URLSearchParams({
             grant_type: 'authorization_code',
