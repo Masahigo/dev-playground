@@ -8,15 +8,7 @@ RESOURCE_GROUP_NAME=$3
 CDN_CUSTOM_DOMAIN_NAME=$4
 CDN_CUSTOM_DOMAIN_HOSTNAME=$5
 
-# Check whether user/spn is already logged in to Azure
-user_logged_in=$(az account list --query [0])
-if [ -z "$user_logged_in" ]; then
-    echo "Login to Azure using SPN.."
-    az login --service-principal -t $ARM_TENANT_ID -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET
-    az account set --subscription $ARM_SUBSCRIPTION_ID
-else
-    echo "Already logged in as user - skip login.."
-fi
+source "$(pwd)/bin/azlogin.sh"
 
 # Check the mapping
 CUSTOM_DOMAIN_VALIDATED=$(az cdn endpoint validate-custom-domain --host-name $CDN_CUSTOM_DOMAIN_HOSTNAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME -g $RESOURCE_GROUP_NAME --query customDomainValidated -o tsv)

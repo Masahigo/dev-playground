@@ -116,6 +116,10 @@ resource "azurerm_app_service" "backend" {
   app_service_plan_id = azurerm_app_service_plan.appserviceplan.id
   https_only          = true
 
+  identity {
+    type = "SystemAssigned"
+  }
+
   # Configure Docker Image to load on start
   site_config {
     linux_fx_version = "DOCKER|masahigo/spa-demo-backend:latest"
@@ -129,6 +133,9 @@ resource "azurerm_app_service" "backend" {
   app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false # Do not attach Storage by default
     WEBSITES_PORT                       = 9000
+    LINKEDIN_REDIRECT_URI               = "https://${azurerm_dns_cname_record.target.name}.${var.dns_zone_name}"
+    LINKEDIN_CLIENT_ID                  = "771fivvrhz594x"
+    LINKEDIN_CLIENT_SECRET              = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault.secrets.vault_uri}secrets/${azurerm_key_vault_secret.linkedinsecret.name}/${azurerm_key_vault_secret.linkedinsecret.version})"
   }
 }
 
@@ -158,12 +165,54 @@ resource "null_resource" "appservicemanagedcert" {
     ]
 }
 
-#resource "azurerm_app_service_custom_hostname_binding" "backendbinding" {
-#  hostname            = "linkedin-demo-backend.dev.msdevopsdude.com"
-#  app_service_name    = azurerm_app_service.backend.name
-#  resource_group_name = azurerm_resource_group.target.name
+data "azurerm_client_config" "current" {}
 
-#  depends_on = [
-#     null_resource.appservicemanagedcert
-#  ]
-#}
+resource "azurerm_key_vault" "secrets" {
+  name                        = "spa-demo-we-kv"
+  location                    = azurerm_resource_group.target.location
+  resource_group_name         = azurerm_resource_group.target.name
+  enabled_for_disk_encryption = true
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
+
+  sku_name = "standard"
+
+  #  Cannot utilize kv network restrictions when using references - https://docs.microsoft.com/fi-fi/azure/app-service/app-service-key-vault-references#granting-your-app-access-to-key-vault
+  #network_acls {
+  #  default_action = "Deny"
+  #  bypass         = "AzureServices"
+  #}
+
+  tags = var.tags
+}
+
+resource "azurerm_key_vault_access_policy" "ci" {
+  key_vault_id = azurerm_key_vault.secrets.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+    "get",
+    "set",
+    "delete",
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "appservicemsi" {
+  key_vault_id = azurerm_key_vault.secrets.id
+  tenant_id    = azurerm_app_service.backend.identity.0.tenant_id
+  object_id    = azurerm_app_service.backend.identity.0.principal_id
+
+  secret_permissions = [
+    "get",
+  ]
+}
+
+resource "azurerm_key_vault_secret" "linkedinsecret" {
+  name         = "linkedin-client-secret"
+  value        = var.linkedin_client_secret
+  key_vault_id = azurerm_key_vault.secrets.id
+
+  tags  = var.tags
+
+  depends_on = [ azurerm_key_vault_access_policy.ci ]
+}
