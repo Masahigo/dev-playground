@@ -1,4 +1,5 @@
 # Workflow for deploying the demo SPA to Azure
+# Good example: https://docs.microsoft.com/en-us/azure/app-service/deploy-github-actions#deploy-using-azure-service-principal
 
 name: Spa CD
 
@@ -16,7 +17,7 @@ env:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   provision-infra:
-    name: 'Terraform'
+    name: 'Provision infra using Terraform'
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
@@ -58,3 +59,45 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
+  deploy-client:
+    needs: provision-infra
+    name: 'Deploy client'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./client
+    steps:
+    # checkout the repo
+    - name: 'Checkout Github Action' 
+      uses: actions/checkout@master
+    - name: Setup Node 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: 'npm install and build'
+      run: |
+        npm install
+        npm run build --if-present
+    - name: Upload artifacts for build
+      uses: actions/upload-artifact@v1
+      with:
+        name: build
+        path: client/build
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+    - name: Execute deploy script
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.3.1
+        inlineScript: |
+          cd client
+          chmod +x ./ci/deploy-azure-cdn.sh
+          ./ci/deploy-azure-cdn.sh spa-demo-fe-we-cdn-ep spa-demo-fe-we-cdn spa-demo-we-rg spademofewestor
+    - name: Azure logout
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az logout
