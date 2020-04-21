@@ -49,16 +49,11 @@ jobs:
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
       - name: 'Terraform Apply'
-        uses: hashicorp/terraform-github-actions@master
-        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+        uses: dev-playground/terraform-azcli@master
         with:
-          tf_actions_version: ${{ env.tf_version }}
-          tf_actions_subcommand: 'apply'
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: false
-          args: '-var="linkedin_client_secret=${{ secrets.LINKEDIN_CLIENT_SECRET }}"'
+          variables: linkedin_client_secret=${{ secrets.LINKEDIN_CLIENT_SECRET }}
+          path: ${{ env.tf_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
