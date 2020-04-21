@@ -20,3 +20,15 @@ docker login
 docker build -t masahigo/spa-demo-backend .
 docker push masahigo/spa-demo-backend
 ```
+
+## Triggering CD pipeline in Github Actions
+
+```bash
+npm run tag:updated
+```
+
+## Build statuses
+
+![Client CI](https://github.com/Masahigo/dev-playground/workflows/Client%20CI/badge.svg)
+![Backend CI](https://github.com/Masahigo/dev-playground/workflows/Backend%20CI/badge.svg)
+![Infra CI](https://github.com/Masahigo/dev-playground/workflows/Infra%20CI/badge.svg)

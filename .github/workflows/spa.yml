@@ -1,13 +1,13 @@
-# Basic idea gotten from here: https://github.com/hashicorp/terraform-github-actions
-
-name: Infra CI
+name: Spa CD
 
 on:
   push:
     branches: [ master ]
     paths:
-    - 'infra/**'
-    - '.github/workflows/infra.yml'
+    - '.github/workflows/spa.yml'
+  create:
+    tags:
+    - UPDATED-*
 env:
     tf_version: '0.12.23'
     tf_working_dir: 'infra/terraform'
@@ -18,15 +18,6 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: actions/checkout@master
-      - name: 'Terraform Format'
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_version: ${{ env.tf_version }}
-          tf_actions_subcommand: 'fmt'
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Terraform Init'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -40,15 +31,6 @@ jobs:
           ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
-      - name: 'Terraform Validate'
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_version: ${{ env.tf_version }}
-          tf_actions_subcommand: 'validate'
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: 'Terraform Plan'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -56,7 +38,21 @@ jobs:
           tf_actions_subcommand: 'plan'
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: false
-          args: '-var="linkedin_client_secret=dummyvalue"'
+          args: '-var="linkedin_client_secret=${{ secrets.LINKEDIN_CLIENT_SECRET }}"'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
+          ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
+        - name: 'Terraform Apply'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_version: ${{ env.tf_version }}
+          tf_actions_subcommand: 'apply'
+          tf_actions_working_dir: ${{ env.tf_working_dir }}
+          tf_actions_comment: false
+          args: '-var="linkedin_client_secret=${{ secrets.LINKEDIN_CLIENT_SECRET }}"'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
