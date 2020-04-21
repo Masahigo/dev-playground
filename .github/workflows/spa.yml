@@ -5,9 +5,8 @@ on:
     branches: [ master ]
     paths:
     - '.github/workflows/spa.yml'
-  create:
     tags:
-    - UPDATED-*
+    - '*'
 env:
     tf_version: '0.12.23'
     tf_working_dir: 'infra/terraform'

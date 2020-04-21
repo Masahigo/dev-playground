@@ -7,7 +7,6 @@ on:
     branches: [ master ]
     paths:
     - 'infra/**'
-    - '.github/workflows/infra.yml'
 env:
     tf_version: '0.12.23'
     tf_working_dir: 'infra/terraform'
