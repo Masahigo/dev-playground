@@ -49,10 +49,10 @@ jobs:
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
       - name: 'Terraform Apply using custom action'
-        uses: '.github/actions/action@master'
+        uses: ./.github/actions/terraform-azcli
         with:
           variables: linkedin_client_secret=${{ secrets.LINKEDIN_CLIENT_SECRET }}
-          path: ${{ env.tf_version }}
+          path: ${{ env.tf_working_dir }}
         env:
           ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
