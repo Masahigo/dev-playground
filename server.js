@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+var compression = require('compression')
 const config = require('./config');
 const { URLSearchParams } = require('url')
 const fetch = require('node-fetch')
@@ -11,6 +12,9 @@ const LINKEDIN_NAME_URL = 'https://api.linkedin.com/v2/me'
 const LINKEDIN_PHOTO_URL = 'https://api.linkedin.com/v2/me?projection=(id,profilePicture(displayImage~:playableStreams))'
 
 const fetchJSON = (...args) => fetch(...args).then(r => r.json())
+
+// Use gzip compression
+app.use(compression());
 
 // configure CORS
 app.use(cors(
