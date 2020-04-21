@@ -4,20 +4,20 @@ variable "subscription_id" {
   default     = "cff7ced3-00d8-477f-8589-11da069c1da1"
 }
 
-variable "client_secret" {
-  type        = string
-  description = "Client secret for Service Principal used in CI"
-}
+#variable "client_secret" {
+#  type        = string
+#  description = "Client secret for Service Principal used in CI"
+#}
 
-variable "client_id" {
-  type        = string
-  description = "Client secret for Service Principal used in CI"
-}
+#variable "client_id" {
+#  type        = string
+#  description = "Client secret for Service Principal used in CI"
+#}
 
-variable "tenant_id" {
-  type        = string
-  description = "Target Azure tenant ID"
-}
+#variable "tenant_id" {
+#  type        = string
+#  description = "Target Azure tenant ID"
+#}
 
 variable "location" {
   type        = string
