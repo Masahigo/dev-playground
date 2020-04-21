@@ -18,7 +18,7 @@ jobs:
     - name: 'Build and push to Docker Hub'
       uses: docker/build-push-action@v1
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        username: 'masahigo'
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
         repository: masahigo/spa-demo-backend
         tags: latest
