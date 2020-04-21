@@ -11,7 +11,6 @@ on:
 env:
     tf_version: '0.12.23'
     tf_working_dir: 'infra/terraform'
-    #az_cli_args: '-var="client_secret=${{ secrets.AZ_CLIENT_SECRET }}" -var="client_id=${{ secrets.AZ_CLIENT_ID }}" -var="tenant_id=${{ secrets.AZ_TENANT_ID }}"'
 jobs:
   terraform:
     name: 'Terraform'
@@ -35,7 +34,7 @@ jobs:
           tf_actions_subcommand: 'init'
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: false
-          #args: '${{ env.az_cli_args }}'
+          args: '-var="tfstate_key=azurespa.ci.tfstate"'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
@@ -58,6 +57,10 @@ jobs:
           tf_actions_subcommand: 'plan'
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: false
-          args: '-var="linkedin_client_secret=dummyvalue"'
+          args: '-var="linkedin_client_secret=dummyvalue" -var="tfstate_key=azurespa.ci.tfstate"'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZ_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
+          ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}

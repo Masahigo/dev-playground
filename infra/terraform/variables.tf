@@ -19,6 +19,12 @@ variable "subscription_id" {
 #  description = "Target Azure tenant ID"
 #}
 
+variable "tfstate_key" {
+  type        = string
+  description = "Key used for Terraform remote state"
+  default     = "azurespa.demo.tfstate"
+}
+
 variable "location" {
   type        = string
   description = "Location to deploy"
