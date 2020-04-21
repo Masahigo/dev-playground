@@ -50,6 +50,7 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
       - name: 'Terraform Apply'
         uses: hashicorp/terraform-github-actions@master
+        run: curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
         with:
           tf_actions_version: ${{ env.tf_version }}
           tf_actions_subcommand: 'apply'
