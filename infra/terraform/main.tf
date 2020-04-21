@@ -173,7 +173,6 @@ resource "azurerm_key_vault" "secrets" {
   resource_group_name         = azurerm_resource_group.target.name
   enabled_for_disk_encryption = true
   tenant_id                   = data.azurerm_client_config.current.tenant_id
-
   sku_name = "standard"
 
   #  Cannot utilize kv network restrictions when using references - https://docs.microsoft.com/fi-fi/azure/app-service/app-service-key-vault-references#granting-your-app-access-to-key-vault
@@ -211,8 +210,7 @@ resource "azurerm_key_vault_secret" "linkedinsecret" {
   name         = "linkedin-client-secret"
   value        = var.linkedin_client_secret
   key_vault_id = azurerm_key_vault.secrets.id
-
-  tags = var.tags
+  tags         = var.tags
 
   depends_on = [azurerm_key_vault_access_policy.ci]
 }
