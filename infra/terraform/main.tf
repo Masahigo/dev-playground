@@ -15,7 +15,7 @@ terraform {
     resource_group_name  = "azure-spa-tf-state-we-rg"
     storage_account_name = "azurespatfstatewestor"
     container_name       = "terraform"
-    key                  = var.tfstate_key
+    key                  = "azurespa.demo.tfstate"
   }
 }
 
