@@ -87,8 +87,8 @@ resource "null_resource" "cdndomain" {
   }
 
   depends_on = [
-     azurerm_cdn_endpoint.spa,
-     azurerm_dns_cname_record.target
+    azurerm_cdn_endpoint.spa,
+    azurerm_dns_cname_record.target
   ]
 }
 
@@ -128,7 +128,7 @@ resource "azurerm_app_service" "backend" {
       allowed_origins = ["https://${azurerm_dns_cname_record.target.name}.${var.dns_zone_name}"]
     }
   }
-  
+
   # https://github.com/microsoft/cobalt/issues/170
   app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false # Do not attach Storage by default
@@ -150,19 +150,19 @@ resource "azurerm_dns_cname_record" "backendcname" {
 
 # App Service Managed Certs not yet supported in tf - https://github.com/terraform-providers/terraform-provider-azurerm/issues/4824
 resource "null_resource" "appservicemanagedcert" {
-    triggers = {
-      version = "0.0.1"
-    }
+  triggers = {
+    version = "0.0.1"
+  }
 
-    provisioner "local-exec" {
-      command     = "./bin/managedcert.sh ${azurerm_resource_group.target.name} ${azurerm_app_service.backend.name} ${azurerm_dns_cname_record.backendcname.name}.${var.dns_zone_name}"
-      interpreter = ["/bin/bash", "-c"]
-    }
+  provisioner "local-exec" {
+    command     = "./bin/managedcert.sh ${azurerm_resource_group.target.name} ${azurerm_app_service.backend.name} ${azurerm_dns_cname_record.backendcname.name}.${var.dns_zone_name}"
+    interpreter = ["/bin/bash", "-c"]
+  }
 
-    depends_on = [
-      azurerm_app_service.backend,
-      azurerm_dns_cname_record.backendcname
-    ]
+  depends_on = [
+    azurerm_app_service.backend,
+    azurerm_dns_cname_record.backendcname
+  ]
 }
 
 data "azurerm_client_config" "current" {}
@@ -212,7 +212,7 @@ resource "azurerm_key_vault_secret" "linkedinsecret" {
   value        = var.linkedin_client_secret
   key_vault_id = azurerm_key_vault.secrets.id
 
-  tags  = var.tags
+  tags = var.tags
 
-  depends_on = [ azurerm_key_vault_access_policy.ci ]
+  depends_on = [azurerm_key_vault_access_policy.ci]
 }

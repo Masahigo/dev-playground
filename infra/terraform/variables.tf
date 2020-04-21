@@ -37,7 +37,7 @@ variable "tags" {
   type        = map
   description = "Tags for resources"
   default = {
-    "environment"  = "demo"
-    "application"  = "SPA"
+    "environment" = "demo"
+    "application" = "SPA"
   }
 }
