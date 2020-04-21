@@ -1,0 +1,13 @@
+# Inspiration from: https://github.com/ams0/terraform-apply-for-azure-action/blob/master/action.yml
+name: 'Terraform Azure CLI'
+description: 'Terraform and Azure CLI packaged together.'
+inputs:
+  variables:
+    description: Comma-separated string of Terraform variables
+    default: ""
+  path:
+    description: Path to Terraform directory, defaults to the working directory
+    default: .
+runs:
+  using: docker
+  image: Dockerfile
