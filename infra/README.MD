@@ -49,4 +49,3 @@ terraform apply -auto-approve
   - Custom domain HTTPS > *On*
   - Certificate management type > *CDN managed*
 - Click *Save* and wait for the process to finish (~5-10 mins)
-
