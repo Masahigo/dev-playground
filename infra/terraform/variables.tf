@@ -4,6 +4,10 @@ variable "subscription_id" {
   default     = "cff7ced3-00d8-477f-8589-11da069c1da1"
 }
 
+variable "client_secret" { type = string }
+variable "client_id" { type = string }
+variable "tenant_id" { type = string }
+
 variable "location" {
   type        = string
   description = "Location to deploy"
