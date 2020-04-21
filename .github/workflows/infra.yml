@@ -34,12 +34,11 @@ jobs:
           tf_actions_subcommand: 'init'
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: false
-          #args: '-var="tfstate_key=azurespa.ci.tfstate"'
         env:
           TF_LOG: TRACE
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZ_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
       - name: 'Terraform Validate'
@@ -62,6 +61,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARM_CLIENT_ID: ${{ secrets.AZ_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZ_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets. AZ_CLIENT_SECRET }}
           ARM_SUBSCRIPTION_ID: 'cff7ced3-00d8-477f-8589-11da069c1da1'
           ARM_TENANT_ID: ${{ secrets.AZ_TENANT_ID }}
