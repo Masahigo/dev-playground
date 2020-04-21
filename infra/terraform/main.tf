@@ -173,7 +173,7 @@ resource "azurerm_key_vault" "secrets" {
   resource_group_name         = azurerm_resource_group.target.name
   enabled_for_disk_encryption = true
   tenant_id                   = data.azurerm_client_config.current.tenant_id
-  sku_name = "standard"
+  sku_name                    = "standard"
 
   #  Cannot utilize kv network restrictions when using references - https://docs.microsoft.com/fi-fi/azure/app-service/app-service-key-vault-references#granting-your-app-access-to-key-vault
   #network_acls {
