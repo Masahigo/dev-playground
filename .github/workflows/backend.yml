@@ -8,6 +8,7 @@ on:
     - 'Dockerfile'
     - 'config.js'
     - 'package.json'
+    - '.github/workflows/backend.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,7 +18,7 @@ jobs:
     - name: 'Build and push to Docker Hub'
       uses: docker/build-push-action@v1
       with:
-      username: ${{ secrets.DOCKERHUB_USERNAME }}
-      password: ${{ secrets.DOCKERHUB_PASSWORD }}
-      repository: masahigo/spa-demo-backend
-      tags: latest
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        repository: masahigo/spa-demo-backend
+        tags: latest
