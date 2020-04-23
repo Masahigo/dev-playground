@@ -6,6 +6,8 @@
 
 This is a simple backend app for fetching user's data from LinkedIn API. The client app calls this by providing the needed authorization code since it handles the login part.
 
+![alt text](images/spa-demo-architecture.png "SPA demo architecture")
+
 ## Running the SPA demo locally
 
 ***Note 1: You need to create yourself your [own app in LinkedIn Developers](https://docs.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow) and configure `Client ID` + `Client Secret` accordingly.*** 
