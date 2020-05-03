@@ -64,13 +64,21 @@ DELIVERY_POLICY=$(az cdn endpoint rule show -n $CDN_ENDPOINT_NAME -g $RESOURCE_G
 GLOBAL_RULE_NAME=Global
 HTTP_TO_HTTPS_RULE_NAME=RedirectToHTTPS
 DEFAULT_URL_REWRITE_RULE_NAME=DefaultUrlRewrite
+SECURITY_HEADERS_RULE1_NAME=AddSecurityHeaders
+SECURITY_HEADERS_RULE2_NAME=AddSecurityHeaders2
 
-echo "Apply Global caching rule.."
+echo "Apply Global rule.."
 
 if [[ $DELIVERY_POLICY != *$GLOBAL_RULE_NAME* ]]; then
   az cdn endpoint rule add -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
-    --order 0 --rule-name $GLOBAL_RULE_NAME --action-name CacheExpiration \
-    --cache-behavior SetIfMissing --cache-duration "7.00:00:00" --output none
+    --order 0 --rule-name $GLOBAL_RULE_NAME --action-name CacheExpiration --cache-behavior SetIfMissing --cache-duration "7.00:00:00" \
+    --output none
+
+  # Throws error: Parameter 'DeliveryRuleAction.name' can not be None.
+  #az cdn endpoint rule action add -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME --rule-name $GLOBAL_RULE_NAME \
+  #  --action-name "ModifyResponseHeader" --header-action Delete --header-name server
+  #az cdn endpoint rule action add -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME --rule-name $GLOBAL_RULE_NAME \
+  #  --action-name "ModifyResponseHeader"  --header-action Append --header-name Feature-Policy --header-value "payment 'self'; geolocation 'self';" --debug
 fi
 
 echo "Apply URL redirect rule for HTTP to HTTPS.."
@@ -93,6 +101,47 @@ if [[ $DELIVERY_POLICY != *$DEFAULT_URL_REWRITE_RULE_NAME* ]]; then
     --order 2 --rule-name $DEFAULT_URL_REWRITE_RULE_NAME --match-variable UrlFileExtension \
     --operator GreaterThan --negate-condition true --match-values 0 --action-name UrlRewrite --source-pattern "/" \
     --destination "/index.html" --preserve-unmatched-path false --output none
+fi
+
+echo "Apply security headers.."
+
+# Add security headers to responses
+if [[ $DELIVERY_POLICY != *$SECURITY_HEADERS_RULE1_NAME* ]]; then
+  az cdn endpoint rule add -g $RESOURCE_GROUP_NAME --profile-name $CDN_PROFILE_NAME -n $CDN_ENDPOINT_NAME \
+    --order 3 --rule-name $SECURITY_HEADERS_RULE1_NAME --match-variable RequestUri --operator Any --negate-condition false --match-values "" --action-name ModifyResponseHeader \
+    --header-action Append --header-name Content-Security-Policy --header-value "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" \
+    --output none
+
+  #az cdn endpoint rule action add --action-name ModifyResponseHeader --rule-name $SECURITY_HEADERS_RULE1_NAME \
+  #  -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
+  #  --header-action Append --header-name Content-Security-Policy --header-value "script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
+    
+  az cdn endpoint rule action add --action-name ModifyResponseHeader --rule-name $SECURITY_HEADERS_RULE1_NAME \
+    -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
+    --header-action Append --header-name X-XSS-Protection --header-value "1; mode=block"
+
+  az cdn endpoint rule action add --action-name ModifyResponseHeader --rule-name $SECURITY_HEADERS_RULE1_NAME \
+    -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
+    --header-action Append --header-name Strict-Transport-Security --header-value "max-age=31536000; includeSubDomains"
+fi
+
+if [[ $DELIVERY_POLICY != *$SECURITY_HEADERS_RULE2_NAME* ]]; then
+  az cdn endpoint rule add -g $RESOURCE_GROUP_NAME --profile-name $CDN_PROFILE_NAME -n $CDN_ENDPOINT_NAME \
+    --order 4 --rule-name $SECURITY_HEADERS_RULE2_NAME --match-variable RequestUri --operator Any --negate-condition false --match-values "" --action-name ModifyResponseHeader \
+    --header-action Append --header-name X-Content-Type-Options --header-value "nosniff" \
+    --output none
+
+  #az cdn endpoint rule action add --action-name ModifyResponseHeader --rule-name $SECURITY_HEADERS_RULE2_NAME \
+  #  -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
+  #  --header-action Append --header-name X-Content-Type-Options --header-value "nosniff"
+    
+  az cdn endpoint rule action add --action-name ModifyResponseHeader --rule-name $SECURITY_HEADERS_RULE2_NAME \
+    -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
+    --header-action Append --header-name x-frame-options --header-value "SAMEORIGIN"
+
+  az cdn endpoint rule action add --action-name ModifyResponseHeader --rule-name $SECURITY_HEADERS_RULE2_NAME \
+    -g $RESOURCE_GROUP_NAME -n $CDN_ENDPOINT_NAME --profile-name $CDN_PROFILE_NAME \
+    --header-action Append --header-name Referrer-Policy --header-value "same-origin"
 fi
 
 echo "Purge CDN endpoint.."
