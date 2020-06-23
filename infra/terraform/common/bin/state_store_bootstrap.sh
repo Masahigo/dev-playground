@@ -13,7 +13,7 @@ function print_usage_and_exit {
   echo "  -l           Azure location to use (defaults to westeurope)"
   echo "  -g           Resource group name to use (defaults to azure-spa-tf-state-rg)"
   echo "  -a           Storage account name (mandatory, no default)"
-  echo "  -t           Tags to use for resources, e.g.: \"key1=value1 key2=value2\" (defaults to \"AppGroup=Platform Type=Dev Team=PolarSquad Customer=RELEX\")"
+  echo "  -t           Tags to use for resources, e.g.: \"key1=value1 key2=value2\""
   echo "  -n           Non-interactive mode: don't prompt for confirmation (defaults to false)"
   echo
   exit 1
